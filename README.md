@@ -19,15 +19,15 @@ This project implements a breast cancer risk assessment tool using Explainable B
 Here's a visual tour of the tool's key features:
 
 ### Dashboard Overview
-![Main Interface](pictures/main_interface.png)
+![Main Interface](pictures/screenshots/main_interface.png.png)
 The main dashboard provides an intuitive interface for medical professionals to input and analyze patient data.
 
 ### Model Performance Visualization
-![Performance Metrics](pictures/performance_metrics.png)
+![Performance Metrics](pictures/screenshots/performance_metrics.png.png)
 Comprehensive visualization of the model's clinical performance metrics and decision matrix.
 
 ### Feature Analysis Dashboard
-![Feature Analysis](pictures/feature_analysis.png)
+![Feature Analysis](pictures/screenshots/feature_analysis.png.png)
 Interactive visualization of feature importance and their impact on predictions, helping understand which characteristics are most crucial for diagnosis.
 
 *Note: The tool provides real-time analysis and explanations for each prediction, ensuring transparency in the decision-making process.*
