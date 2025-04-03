@@ -150,20 +150,6 @@ This project uses the Breast Cancer Wisconsin (Diagnostic) Dataset from the UCI 
 
 The dataset contains features computed from digitized images of fine needle aspirate (FNA) of breast masses. These features describe characteristics of the cell nuclei present in the image.
 
-## Citation
-
-If you use this project in your research or work, please cite it as:
-
-```
-@software{breast_cancer_risk_assessment2025,
-  author = {[Your Name]},
-  title = {Breast Cancer Risk Assessment Tool},
-  year = {2025},
-  publisher = {GitHub},
-  url = {https://github.com/DLin-beep/ebm_breast_cancer_project}
-}
-```
-
 ## License
 
 MIT License
