@@ -14,6 +14,24 @@ This project implements a breast cancer risk assessment tool using Explainable B
 - Feature importance analysis
 - Real-time risk assessment
 
+## Preview
+
+Here's a visual tour of the tool's key features:
+
+### Dashboard Overview
+![Main Interface](pictures/main_interface.png)
+The main dashboard provides an intuitive interface for medical professionals to input and analyze patient data.
+
+### Model Performance Visualization
+![Performance Metrics](pictures/performance_metrics.png)
+Comprehensive visualization of the model's clinical performance metrics and decision matrix.
+
+### Feature Analysis Dashboard
+![Feature Analysis](pictures/feature_analysis.png)
+Interactive visualization of feature importance and their impact on predictions, helping understand which characteristics are most crucial for diagnosis.
+
+*Note: The tool provides real-time analysis and explanations for each prediction, ensuring transparency in the decision-making process.*
+
 ## Installation
 
 1. Clone the repository:
@@ -150,7 +168,7 @@ If you use this project in your research or work, please cite it as:
 
 MIT License
 
-Copyright (c) 2025 [Your Name]
+Copyright (c) 2025 Derek Lin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
