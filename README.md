@@ -82,6 +82,7 @@ ebm_breast_cancer_project/
 
 The model has been optimized for clinical use with the following characteristics:
 
+- **10-Fold Cross-Validation**: Performance was validated using 10-fold cross-validation
 - **High Sensitivity**: Prioritizes identifying malignant cases
 - **Balanced Specificity**: Maintains reasonable accuracy for benign cases
 - **Interpretable Predictions**: Provides feature importance and local explanations
