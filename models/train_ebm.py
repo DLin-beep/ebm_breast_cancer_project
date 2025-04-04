@@ -1,12 +1,11 @@
 from interpret.glassbox import ExplainableBoostingClassifier
-from sklearn.model_selection import cross_val_score, train_test_split, GridSearchCV
+from sklearn.model_selection import cross_val_score, train_test_split, cross_validate
 import numpy as np
 import joblib
 import os
 from datetime import datetime
 from data.load_data import load_breast_cancer_data
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, make_scorer, confusion_matrix
-from sklearn.utils.class_weight import compute_class_weight
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, make_scorer, confusion_matrix, roc_auc_score
 
 def custom_score(y_true, y_pred):
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
@@ -22,76 +21,84 @@ def train_and_save_model():
     )
     print("Calculating sample weights...")
     sample_weights = np.ones(len(y_train))
-    malignant_indices = y_train == 1
-    sample_weights[malignant_indices] = 25
+    high_risk_indices = y_train == 1
+    sample_weights[high_risk_indices] = 25
     print("\nClass weighting:")
-    print("Benign (0): 1.0")
-    print("Malignant (1): 25.0")
-    param_grid = {
-        'learning_rate': [0.05],
-        'max_bins': [128, 256],
-        'max_interaction_bins': [16, 32],
-        'interactions': [5, 10],
-        'outer_bags': [4, 8],
-        'inner_bags': [0],
-        'validation_size': [0.2]
+    print("Low Risk (0): 1.0")
+    print("High Risk (1): 25.0")
+    
+    hyperparams = {
+        'learning_rate': 0.01,
+        'max_bins': 128,
+        'max_interaction_bins': 16,
+        'interactions': 5,
+        'outer_bags': 4,
+        'inner_bags': 0,
+        'validation_size': 0.2,
+        'min_samples_leaf': 5,
+        'max_rounds': 1000,
+        'early_stopping_rounds': 50,
+        'n_jobs': -1
     }
-    print("Initializing base model...")
-    base_ebm = ExplainableBoostingClassifier(
+    
+    print("Initializing model with optimized hyperparameters...")
+    ebm = ExplainableBoostingClassifier(
         random_state=42,
         feature_names=feature_info['feature_names'],
-        interactions=5,
-        n_jobs=-1,
-        min_samples_leaf=5,
-        max_rounds=5000,
-        early_stopping_rounds=100
+        **hyperparams
     )
-    custom_scorer = make_scorer(custom_score)
-    print("\nPerforming grid search with 10-fold cross-validation...")
-    grid_search = GridSearchCV(
-        base_ebm,
-        param_grid,
+    
+    print("\nPerforming 10-fold cross-validation with essential metrics...")
+    scoring = {
+        'custom_score': make_scorer(custom_score),
+        'recall': 'recall',
+        'roc_auc': 'roc_auc'
+    }
+    
+    cv_results = cross_validate(
+        ebm,
+        X_train,
+        y_train,
         cv=10,
-        scoring={
-            'custom_score': custom_scorer,
-            'recall': 'recall',
-            'precision': 'precision',
-            'accuracy': 'accuracy'
-        },
-        refit='custom_score',
+        scoring=scoring,
         n_jobs=-1,
-        verbose=1
+        return_train_score=True,
+        fit_params={'sample_weight': sample_weights}
     )
-    grid_search.fit(X_train, y_train, sample_weight=sample_weights)
-    print("\nTraining completed. Getting best model...")
-    ebm = grid_search.best_estimator_
-    print("\nBest parameters found:")
-    for param, value in grid_search.best_params_.items():
-        print(f"{param}: {value}")
-    print("\nCalculating cross-validation scores...")
-    cv_scores = cross_val_score(ebm, X_train, y_train, cv=10, scoring='recall')
-    print(f"\nCross-validation recall scores: {cv_scores}")
-    print(f"Average CV recall: {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f})")
+    
+    print("\nCross-validation results:")
+    for metric in scoring.keys():
+        mean_score = cv_results[f'test_{metric}'].mean()
+        std_score = cv_results[f'test_{metric}'].std()
+        print(f"{metric}: {mean_score:.3f} (+/- {std_score * 2:.3f})")
+    
     print("\nPerforming final model training...")
     ebm.fit(X_train, y_train, sample_weight=sample_weights)
+    
     print("\nEvaluating on test set...")
     y_pred = ebm.predict(X_test)
     y_pred_proba = ebm.predict_proba(X_test)[:, 1]
-    test_accuracy = accuracy_score(y_test, y_pred)
-    test_precision = precision_score(y_test, y_pred, zero_division=0)
-    test_recall = recall_score(y_test, y_pred)
-    test_f1 = f1_score(y_test, y_pred)
+    
+    test_metrics = {
+        'accuracy': accuracy_score(y_test, y_pred),
+        'precision': precision_score(y_test, y_pred, zero_division=0),
+        'recall': recall_score(y_test, y_pred),
+        'f1': f1_score(y_test, y_pred),
+        'roc_auc': roc_auc_score(y_test, y_pred_proba)
+    }
+    
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    
     print("\nTest set performance:")
-    print(f"Accuracy: {test_accuracy:.3f}")
-    print(f"Precision: {test_precision:.3f}")
-    print(f"Recall: {test_recall:.3f}")
-    print(f"F1 Score: {test_f1:.3f}")
+    for metric, score in test_metrics.items():
+        print(f"{metric}: {score:.3f}")
+    
     print("\nDetailed error analysis:")
-    print(f"False Negatives (missed malignant): {fn}")
+    print(f"False Negatives (missed high risk): {fn}")
     print(f"False Positives (false alarms): {fp}")
-    print(f"True Negatives (correct benign): {tn}")
-    print(f"True Positives (correct malignant): {tp}")
+    print(f"True Negatives (correct low risk): {tn}")
+    print(f"True Positives (correct high risk): {tp}")
+    
     if fn > 0:
         print("\nAnalyzing false negative cases:")
         fn_indices = np.where((y_test == 1) & (y_pred == 0))[0]
@@ -101,22 +108,21 @@ def train_and_save_model():
         print("\nPrediction probabilities for false negative cases:")
         for idx in fn_indices:
             print(f"Case {idx}: {y_pred_proba[idx]:.4f}")
+    
     print("\nSaving model...")
     model_dir = "models/saved"
     os.makedirs(model_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     model_path = os.path.join(model_dir, f"ebm_model_{timestamp}.pkl")
+    
     model_data = {
         'model': ebm,
         'X_test': X_test,
         'y_test': y_test,
         'feature_info': feature_info,
         'training_metrics': {
-            'cv_scores': cv_scores,
-            'test_accuracy': test_accuracy,
-            'test_precision': test_precision,
-            'test_recall': test_recall,
-            'test_f1': test_f1,
+            'cv_results': cv_results,
+            'test_metrics': test_metrics,
             'confusion_matrix': {
                 'tn': int(tn),
                 'fp': int(fp),
@@ -124,12 +130,13 @@ def train_and_save_model():
                 'tp': int(tp)
             }
         },
-        'best_params': grid_search.best_params_,
+        'hyperparameters': hyperparams,
         'sample_weights': {
-            'benign': 1.0,
-            'malignant': 25.0
+            'low_risk': 1.0,
+            'high_risk': 25.0
         }
     }
+    
     joblib.dump(model_data, model_path)
     print(f"\nModel saved to: {model_path}")
     return ebm, X_test, y_test, feature_info
