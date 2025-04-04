@@ -70,7 +70,8 @@ ebm_breast_cancer_project/
 ├── app.py                 # Streamlit web application
 ├── main.py               # Main script for training and evaluation
 ├── data/
-│   └── load_data.py      # Data loading and preprocessing
+│   ├── load_data.py      # Data loading and preprocessing
+│   └── seer_data.csv     # SEER dataset
 ├── models/
 │   ├── train_ebm.py      # Model training implementation
 │   └── saved/            # Trained model storage
@@ -82,7 +83,6 @@ ebm_breast_cancer_project/
 
 The model has been optimized for clinical use with the following characteristics:
 
-- **10-Fold Cross-Validation**: Performance was validated using 10-fold cross-validation
 - **High Sensitivity**: Prioritizes identifying malignant cases
 - **Balanced Specificity**: Maintains reasonable accuracy for benign cases
 - **Interpretable Predictions**: Provides feature importance and local explanations
@@ -92,64 +92,17 @@ The model has been optimized for clinical use with the following characteristics
 
 - This tool is designed for screening purposes only and should not replace professional medical diagnosis
 - The model's performance may vary with different populations or data distributions
-- The tool requires standardized FNA measurements for optimal performance
+- The tool requires standardized measurements for optimal performance
 - False negatives, while minimized, are still possible and require clinical judgment
-
-## API Documentation
-
-### Data Loading
-```python
-from data.load_data import load_breast_cancer_data
-
-X, y, feature_info = load_breast_cancer_data()
-```
-- **Input**: None
-- **Output**:
-  - `X`: Scaled feature matrix (pandas DataFrame)
-  - `y`: Target labels (0 for benign, 1 for malignant)
-  - `feature_info`: Dictionary containing feature names and scaler
-
-### Model Training
-```python
-from models.train_ebm import train_and_save_model
-
-ebm, X_test, y_test, feature_info = train_and_save_model()
-```
-- **Input**: None
-- **Output**:
-  - `ebm`: Trained EBM model
-  - `X_test`: Test set features
-  - `y_test`: Test set labels
-  - `feature_info`: Feature information dictionary
-
-### Model Evaluation
-```python
-from evaluation.evaluate_ebm import evaluate_model
-
-results = evaluate_model(ebm, X, y)
-```
-- **Input**:
-  - `ebm`: Trained EBM model
-  - `X`: Feature matrix
-  - `y`: Target labels
-- **Output**: Dictionary containing:
-  - `confusion_matrix`: Model's confusion matrix
-  - `metrics`: Performance metrics (accuracy, precision, recall, etc.)
-  - `curves`: ROC and PR curves
-  - `feature_names`: List of feature names
-  - `importance_scores`: Feature importance scores
 
 ## Dataset Credits
 
-This project uses the Breast Cancer Wisconsin (Diagnostic) Dataset from the UCI Machine Learning Repository:
+This project uses the SEER (Surveillance, Epidemiology, and End Results) dataset:
 
-- **Dataset ID**: 17
-- **Source**: UCI Machine Learning Repository
-- **Citation**: Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
-- **Original Dataset**: Breast Cancer Wisconsin (Diagnostic) Data Set
-- **Contributors**: Dr. William H. Wolberg, W. Nick Street, and Olvi L. Mangasarian
-
-The dataset contains features computed from digitized images of fine needle aspirate (FNA) of breast masses. These features describe characteristics of the cell nuclei present in the image.
+- **Source**: National Cancer Institute's SEER Program
+- **Description**: The SEER dataset contains comprehensive cancer incidence and survival data from population-based cancer registries
+- **Features**: Includes detailed information about patient demographics, tumor characteristics, treatment, and outcomes
+- **Target**: Cancer diagnosis and survival outcomes
 
 ## License
 
