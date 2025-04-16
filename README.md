@@ -96,13 +96,14 @@ The model has been optimized for clinical use with the following characteristics
 - False negatives, while minimized, are still possible and require clinical judgment
 
 ## Dataset Credits
-
-This project uses the SEER (Surveillance, Epidemiology, and End Results) dataset:
-
-- **Source**: National Cancer Institute's SEER Program
-- **Description**: The SEER dataset contains comprehensive cancer incidence and survival data from population-based cancer registries
-- **Features**: Includes detailed information about patient demographics, tumor characteristics, treatment, and outcomes
-- **Target**: Cancer diagnosis and survival outcomes
+ 
+ This project uses the Breast Cancer Wisconsin (Diagnostic) Dataset from the UCI Machine Learning Repository:
+ 
+ - **Dataset ID**: 17
+ - **Source**: UCI Machine Learning Repository
+ - **Citation**: Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+ - **Original Dataset**: Breast Cancer Wisconsin (Diagnostic) Data Set
+ - **Contributors**: Dr. William H. Wolberg, W. Nick Street, and Olvi L. Mangasarian
 
 ## License
 
